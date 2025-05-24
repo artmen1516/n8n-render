@@ -48,15 +48,20 @@ services:
     repo: https://github.com/render-examples/tailscale
     branch: main
     autoDeploy: false # keep the version you pick
-    dockerCommand: |
-      ./run-tailscale.sh &
-      tailscale serve --http=0.0.0.0:3000 text:"ok" &
-      sleep infinity
+    dockerCommand: ./run-tailscale.sh & busybox httpd -f -p 3000 & sleep infinity
+    healthCheckPath: /
     envVars:
+      - key: PORT
+        value: 3000
       - key: TAILSCALE_VERSION # bump to the current stable
-        value: 1.64.0 # template version
+        value: 1.84.0 # template version
       - key: ADVERTISE_ROUTES # publish all Render 10.x nets
         value: 10.0.0.0/8
+      # silence SOCKS/peer-API log spam (optional)
+      - key: TS_SOCKS5_SERVER
+        value: ""
+      - key: TS_PEERAPI_PORT
+        value: "0"
       # Load all env vars from a specific group
       - fromGroup: n8n-self-hosted
       # Variable reference only
