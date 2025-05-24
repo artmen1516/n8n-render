@@ -53,6 +53,8 @@ services:
         value: 1.84.0 # 2025-05-21 release
       - key: ADVERTISE_ROUTES # publish all Render 10.x nets
         value: 10.0.0.0/8
+      # Load env vars from a specific group
+      - fromGroup: n8n-self-hosted
     # disk: # persist the node key between deploys
     #   name: tailscale-state
     #   mountPath: /var/lib/tailscale
