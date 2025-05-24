@@ -36,8 +36,11 @@ services:
         fromSecret: DB_POSTGRESDB_PASSWORD
       - key: DB_POSTGRESDB_SSL_CA #CA you stored as a secret
         fromSecret: SUPABASE_CA_CERT
+      # Load env vars from a specific group
+      - fromGroup: n8n-self-hosted
 
   - type: worker
+    plan: free 
     name: render-subnet-router
     env: docker
     repo: https://github.com/render-examples/tailscale
