@@ -1,65 +1,56 @@
 # Use this Blueprint to deploy n8n on Render as a web
-# service that uses a Postgres database to store
-# workflow data.
-#
-# This Blueprint uses free instance types (specified by
-# `plan`) for both the web service and the database. You
-# can upgrade to paid instance types at any time to
-# increase resources.
+# service that uses a Supabase Postgres database to store
+# workflow data. It also sets up a worker to give access to a Tailscale VPN.
+
+# ⚠️ This Blueprint uses free instance types. Watch the quota limits ⚠️
+# ⚠️ REFERENCED SECRETS MUST EXIST IN RENDER BEFORE A DEPLOYMENT ⚠️
 
 services:
   - type: web
-    plan: free
-    # This is the runtime for services that pull a prebuilt Docker image
-    runtime: image
-    # You can give the service any name
-    name: n8n-service
+    plan: free 
+    runtime: image # This is the runtime for services that pull a prebuilt Docker image
+    name: n8n-service # You can give the service any name
+    healthCheckPath: /healthz
     image:
-      # Pulls the n8n image tagged as latest from Docker Hub
-      url: docker.io/n8nio/n8n:latest
-
-    # All environment variables defined below are required!
-    #
-    # You can define additional environment variables as needed.
+      url: docker.io/n8nio/n8n:1.93.0 # stable version in Docker Hub at 2025-05-24
     envVars:
-      # Generates a base64-encoded key for
-      # encrypting credentials in n8n
-      #
-      # Do not modify this value after it's generated!
-      # If you do, you'll lose access to all credentials
-      # encrypted with the previous value.
-      - key: N8N_ENCRYPTION_KEY
+      # ----- N8N -----
+      - key: N8N_ENCRYPTION_KEY # Generates a base64-encoded key for encrypting credentials in n8n
         generateValue: true
-
-      # These automatically populate connection details 
-      # for the Render Postgres database defined below
+      - key: OLLAMA_BASE_URL # Variable available inside n8n
+        fromSecret: OLLAMA_BASE_URL
+      #  ----- Supabase Postgres database -----
       - key: DB_TYPE
         value: postgresdb
+      - key: DB_POSTGRESDB_SSL_ENABLED # Supabase requires SSL
+        value: "true"
+      - key: DB_POSTGRESDB_POOL_SIZE # Qty of parallel open Postgres connections n8n should have
+        value: "2"
       - key: DB_POSTGRESDB_DATABASE
-        fromDatabase:
-          name: n8n-db
-          property: database
-      - key: DB_POSTGRESDB_HOST
-        fromDatabase:
-          name: n8n-db
-          property: host
-      - key: DB_POSTGRESDB_PASSWORD
-        fromDatabase:
-          name: n8n-db
-          property: password
+        value: "postgres"
+      - key: DB_POSTGRESDB_HOST # db.<PROJECT-REF>.supabase.co https://xqecjvcdysxacdyoodmr.supabase.co
+        fromSecret: DB_POSTGRESDB_HOST
       - key: DB_POSTGRESDB_USER
-        fromDatabase:
-          name: n8n-db
-          property: user
+        fromSecret: DB_POSTGRESDB_USER
+      - key: DB_POSTGRESDB_PASSWORD
+        fromSecret: DB_POSTGRESDB_PASSWORD
+      - key: DB_POSTGRESDB_SSL_CA #CA you stored as a secret
+        fromSecret: SUPABASE_CA_CERT
 
-databases:
-  - name: n8n-db
-    plan: free
-    # The free instance type is limited to 1 GB of disk
-    # space.
-    #
-    # If you later upgrade to a paid instance type, you can
-    # increase the disk size to any multiple of 5 GB by
-    # setting the `diskSizeGB` property.
-    #
-    # diskSizeGB: 5
+  - type: worker
+    name: render-subnet-router
+    env: docker
+    repo: https://github.com/render-examples/tailscale
+    branch: main
+    autoDeploy: false # keep the version you pick
+    envVars:
+      - key: TAILSCALE_AUTHKEY # add this secret in the UI
+        sync: false
+      - key: TAILSCALE_VERSION # bump to the current stable
+        value: 1.84.0 # 2025-05-21 release
+      - key: ADVERTISE_ROUTES # publish all Render 10.x nets
+        value: 10.0.0.0/8
+    # disk: # persist the node key between deploys
+    #   name: tailscale-state
+    #   mountPath: /var/lib/tailscale
+    #   sizeGB: 1
