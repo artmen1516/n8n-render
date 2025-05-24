@@ -41,12 +41,18 @@ services:
       # - key: DB_POSTGRESDB_SSL_CA #CA you stored as a secret
       #   sync: false
 
-  - type: worker
+  - type: web # Original approach uses a worker, but is not part of the free tier.
     plan: free 
-    name: render-subnet-router
+    name: tailscale-subnet-router
     env: docker
     repo: https://github.com/render-examples/tailscale
     branch: main
+
+    # Workaround from worker to web service
+    startCommand: ./run-tailscale.sh & python3 -m http.server 3000
+    internalPort: 3000
+    healthCheckPath: /
+    # --------------
     autoDeploy: false # keep the version you pick
     envVars:
       - key: TAILSCALE_VERSION # bump to the current stable
