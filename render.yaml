@@ -48,7 +48,7 @@ services:
     repo: https://github.com/render-examples/tailscale
     branch: main
     autoDeploy: false # keep the version you pick
-    startCommand: |
+    dockerCommand: |
       ./run-tailscale.sh &
       tailscale serve --http=0.0.0.0:3000 text:"ok" &
       sleep infinity
