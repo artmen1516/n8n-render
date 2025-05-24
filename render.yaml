@@ -28,16 +28,18 @@ services:
         value: "2"
       - key: DB_POSTGRESDB_DATABASE
         value: "postgres"
-      - key: DB_POSTGRESDB_HOST # db.<PROJECT-REF>.supabase.co https://xqecjvcdysxacdyoodmr.supabase.co
-        sync: false
-      - key: DB_POSTGRESDB_USER
-        sync: false
-      - key: DB_POSTGRESDB_PASSWORD
-        sync: false
-      - key: DB_POSTGRESDB_SSL_CA #CA you stored as a secret
-        sync: false
-      # Load env vars from a specific group
+      # Loads all env vars from a specific group
       - fromGroup: n8n-self-hosted
+
+      # ---- Commented since they are already loaded from the group, leaving them here as a reference ----
+      # - key: DB_POSTGRESDB_HOST # db.<PROJECT-REF>.supabase.co https://xqecjvcdysxacdyoodmr.supabase.co
+      #   sync: false
+      # - key: DB_POSTGRESDB_USER
+      #   sync: false
+      # - key: DB_POSTGRESDB_PASSWORD
+      #   sync: false
+      # - key: DB_POSTGRESDB_SSL_CA #CA you stored as a secret
+      #   sync: false
 
   - type: worker
     plan: free 
@@ -47,14 +49,16 @@ services:
     branch: main
     autoDeploy: false # keep the version you pick
     envVars:
-      - key: TAILSCALE_AUTHKEY # add this secret in the UI
-        sync: false
       - key: TAILSCALE_VERSION # bump to the current stable
         value: 1.84.0 # 2025-05-21 release
       - key: ADVERTISE_ROUTES # publish all Render 10.x nets
         value: 10.0.0.0/8
-      # Load env vars from a specific group
+      # Load all env vars from a specific group
       - fromGroup: n8n-self-hosted
+      # Variable reference only
+      # - key: TAILSCALE_AUTHKEY # add this secret in the UI
+      #   sync: false
+      
     # disk: # persist the node key between deploys
     #   name: tailscale-state
     #   mountPath: /var/lib/tailscale
