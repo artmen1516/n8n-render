@@ -50,7 +50,6 @@ services:
 
     # Workaround from worker to web service
     startCommand: ./run-tailscale.sh & python3 -m http.server 3000
-    internalPort: 3000
     healthCheckPath: /
     # --------------
     autoDeploy: false # keep the version you pick
