@@ -47,8 +47,11 @@ services:
     env: docker
     repo: https://github.com/render-examples/tailscale
     branch: main
-    # --------------
     autoDeploy: false # keep the version you pick
+    startCommand: |
+      ./run-tailscale.sh &
+      tailscale serve --http=0.0.0.0:3000 text:"ok" &
+      sleep infinity
     envVars:
       - key: TAILSCALE_VERSION # bump to the current stable
         value: 1.64.0 # template version
