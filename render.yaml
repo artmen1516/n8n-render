@@ -51,7 +51,7 @@ services:
     autoDeploy: false # keep the version you pick
     envVars:
       - key: TAILSCALE_VERSION # bump to the current stable
-        value: 1.84.0 # 2025-05-21 release
+        value: 1.64.0 # template version
       - key: ADVERTISE_ROUTES # publish all Render 10.x nets
         value: 10.0.0.0/8
       # Load all env vars from a specific group
