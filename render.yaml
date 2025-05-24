@@ -47,10 +47,6 @@ services:
     env: docker
     repo: https://github.com/render-examples/tailscale
     branch: main
-
-    # Workaround from worker to web service
-    startCommand: ./run-tailscale.sh & python3 -m http.server 3000
-    healthCheckPath: /
     # --------------
     autoDeploy: false # keep the version you pick
     envVars:
