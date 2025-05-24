@@ -18,7 +18,7 @@ services:
       - key: N8N_ENCRYPTION_KEY # Generates a base64-encoded key for encrypting credentials in n8n
         generateValue: true
       - key: OLLAMA_BASE_URL # Variable available inside n8n
-        fromSecret: OLLAMA_BASE_URL
+        sync: false
       #  ----- Supabase Postgres database -----
       - key: DB_TYPE
         value: postgresdb
@@ -29,13 +29,13 @@ services:
       - key: DB_POSTGRESDB_DATABASE
         value: "postgres"
       - key: DB_POSTGRESDB_HOST # db.<PROJECT-REF>.supabase.co https://xqecjvcdysxacdyoodmr.supabase.co
-        fromSecret: DB_POSTGRESDB_HOST
+        sync: false
       - key: DB_POSTGRESDB_USER
-        fromSecret: DB_POSTGRESDB_USER
+        sync: false
       - key: DB_POSTGRESDB_PASSWORD
-        fromSecret: DB_POSTGRESDB_PASSWORD
+        sync: false
       - key: DB_POSTGRESDB_SSL_CA #CA you stored as a secret
-        fromSecret: SUPABASE_CA_CERT
+        sync: false
       # Load env vars from a specific group
       - fromGroup: n8n-self-hosted
 
